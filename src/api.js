@@ -9,18 +9,20 @@
 const BASE = 'https://pokeapi.co/api/v2';
 
 /**
- * Fetch the index of Pokémon. Returns the raw `results` array of
- * { name, url } objects — NOT the full detail records.
- * @param {number} limit
- * @returns {Promise<Array<{ name: string, url: string }>>}
+ * Fetch a page of the Pokémon index. The PokéAPI list endpoint supports
+ * `limit` (page size) and `offset` (how many to skip) query params, plus
+ * a `count` of the total number of Pokémon available.
+ * @param {number} limit  page size
+ * @param {number} offset how many records to skip
+ * @returns {Promise<{ results: Array<{ name: string, url: string }>, count: number }>}
  */
-export async function fetchPokemonList(limit = 151) {
-  const res = await fetch(`${BASE}/pokemon?limit=${limit}`);
+export async function fetchPokemonList(limit = 60, offset = 0) {
+  const res = await fetch(`${BASE}/pokemon?limit=${limit}&offset=${offset}`);
   if (!res.ok) {
     throw new Error(`Failed to fetch Pokémon list (HTTP ${res.status})`);
   }
   const data = await res.json();
-  return data.results;
+  return { results: data.results, count: data.count };
 }
 
 /**
@@ -37,11 +39,16 @@ export async function fetchPokemonDetail(url) {
 }
 
 /**
- * Orchestrates the full dashboard fetch: list → parallel details.
- * @param {number} limit
- * @returns {Promise<object[]>} array of raw detail records
+ * Orchestrates one page of the dashboard fetch: list page → parallel details.
+ * @param {number} limit  page size
+ * @param {number} offset how many records to skip
+ * @returns {Promise<{ rows: object[], totalCount: number }>} raw detail
+ *   records for the page plus the total number of Pokémon available
  */
-export async function fetchDashboardData(limit = 151) {
-  const list = await fetchPokemonList(limit);
-  return Promise.all(list.map((entry) => fetchPokemonDetail(entry.url)));
+export async function fetchDashboardData(limit = 60, offset = 0) {
+  const { results, count } = await fetchPokemonList(limit, offset);
+  const rows = await Promise.all(
+    results.map((entry) => fetchPokemonDetail(entry.url))
+  );
+  return { rows, totalCount: count };
 }

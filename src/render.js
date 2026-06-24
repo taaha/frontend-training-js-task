@@ -138,6 +138,29 @@ export function renderGrid(container, rows) {
     .join('');
 }
 
+/**
+ * Render Prev / Next page controls plus a "Page X of Y" indicator.
+ * @param {HTMLElement} container
+ * @param {{ page:number, pageSize:number, totalCount:number }} pageState
+ *   `page` is 0-based.
+ * @param {{ onPrev:Function, onNext:Function }} handlers
+ */
+export function renderPagination(container, pageState, handlers) {
+  const { page, pageSize, totalCount } = pageState;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const isFirst = page <= 0;
+  const isLast = page >= totalPages - 1;
+
+  container.innerHTML = `
+    <button type="button" id="page-prev" class="page-btn" ${isFirst ? 'disabled' : ''}>‹ Prev</button>
+    <span class="page-info">Page ${page + 1} of ${totalPages}</span>
+    <button type="button" id="page-next" class="page-btn" ${isLast ? 'disabled' : ''}>Next ›</button>
+  `;
+
+  container.querySelector('#page-prev').addEventListener('click', handlers.onPrev);
+  container.querySelector('#page-next').addEventListener('click', handlers.onNext);
+}
+
 /** Simple full-section status message (loading / error). */
 export function renderMessage(container, message, kind = 'info') {
   container.innerHTML = `<p class="status status-${kind}">${esc(message)}</p>`;

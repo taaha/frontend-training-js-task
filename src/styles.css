@@ -125,6 +125,36 @@ body {
   max-width: 320px;
 }
 
+/* ---- Pagination ---- */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.page-btn {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid #2a3350;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.12s ease;
+}
+.page-btn:hover:not(:disabled) {
+  border-color: var(--accent-2);
+}
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.page-info {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 /* ---- Grid ---- */
 .grid {
   display: grid;
